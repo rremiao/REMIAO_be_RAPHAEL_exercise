@@ -3,19 +3,15 @@ package com.ecore.roles.client.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 @Builder
-@EqualsAndHashCode
 public class User {
 
     @JsonProperty

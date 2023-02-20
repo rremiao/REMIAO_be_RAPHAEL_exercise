@@ -6,13 +6,18 @@ import com.ecore.roles.model.Membership;
 import com.ecore.roles.repository.MembershipRepository;
 import com.ecore.roles.repository.RoleRepository;
 import com.ecore.roles.service.impl.MembershipsServiceImpl;
+import com.ecore.roles.web.dto.MembershipDto;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.ecore.roles.utils.TestData.DEFAULT_MEMBERSHIP;
 import static com.ecore.roles.utils.TestData.DEVELOPER_ROLE;
@@ -50,10 +55,10 @@ class MembershipsServiceTest {
                 .save(expectedMembership))
                         .thenReturn(expectedMembership);
 
-        Membership actualMembership = membershipsService.assignRoleToMembership(expectedMembership);
+        MembershipDto actualMembership = membershipsService.assignRoleToMembership(expectedMembership);
 
         assertNotNull(actualMembership);
-        assertEquals(actualMembership, expectedMembership);
+        assertEquals(actualMembership.toModel(), expectedMembership);
         verify(roleRepository).findById(expectedMembership.getRole().getId());
     }
 
@@ -98,6 +103,19 @@ class MembershipsServiceTest {
     public void shouldFailToGetMembershipsWhenRoleIdIsNull() {
         assertThrows(NullPointerException.class,
                 () -> membershipsService.getMemberships(null));
+    }
+
+    @Test
+    public void shouldFindAllMemberships() {
+        Membership oneMembership = DEFAULT_MEMBERSHIP();
+        List<Membership> expectedMembership = new ArrayList<>();
+
+        expectedMembership.add(oneMembership);
+        when(membershipRepository.findAll()).thenReturn(expectedMembership);
+
+        List<Membership> actualMembership = membershipsService.getAllMemberships().stream()
+                .map(MembershipDto::toModel).collect(Collectors.toList());
+        assertEquals(expectedMembership, actualMembership);
     }
 
 }

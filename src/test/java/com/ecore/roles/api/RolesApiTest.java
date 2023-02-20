@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 
@@ -65,7 +66,7 @@ public class RolesApiTest {
         sendRequest(when()
                 .get("/v1/role")
                 .then())
-                        .validate(404, "Not Found");
+                        .validate(HttpStatus.NOT_FOUND.value(), "Not Found");
     }
 
     @Test
@@ -73,7 +74,7 @@ public class RolesApiTest {
         Role expectedRole = DEVOPS_ROLE();
 
         RoleDto actualRole = createRole(expectedRole)
-                .statusCode(201)
+                .statusCode(HttpStatus.CREATED.value())
                 .extract().as(RoleDto.class);
 
         assertThat(actualRole.getName()).isEqualTo(expectedRole.getName());
@@ -82,19 +83,19 @@ public class RolesApiTest {
     @Test
     void shouldFailToCreateNewRoleWhenNull() {
         createRole(null)
-                .validate(400, "Bad Request");
+                .validate(HttpStatus.BAD_REQUEST.value(), "Bad Request");
     }
 
     @Test
     void shouldFailToCreateNewRoleWhenMissingName() {
         createRole(Role.builder().build())
-                .validate(400, "Bad Request");
+                .validate(HttpStatus.BAD_REQUEST.value(), "Bad Request");
     }
 
     @Test
     void shouldFailToCreateNewRoleWhenBlankName() {
         createRole(Role.builder().name("").build())
-                .validate(400, "Bad Request");
+                .validate(HttpStatus.BAD_REQUEST.value(), "Bad Request");
     }
 
     @Test
@@ -119,14 +120,14 @@ public class RolesApiTest {
         Role expectedRole = DEVELOPER_ROLE();
 
         getRole(expectedRole.getId())
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("name", equalTo(expectedRole.getName()));
     }
 
     @Test
     void shouldFailToGetRoleById() {
         getRole(UUID_1)
-                .validate(404, format("Role %s not found", UUID_1));
+                .validate(HttpStatus.NOT_FOUND.value(), format("Role %s not found", UUID_1));
     }
 
     @Test
@@ -134,29 +135,29 @@ public class RolesApiTest {
         Membership expectedMembership = DEFAULT_MEMBERSHIP();
         mockGetTeamById(mockServer, ORDINARY_CORAL_LYNX_TEAM_UUID, ORDINARY_CORAL_LYNX_TEAM());
         createMembership(expectedMembership)
-                .statusCode(201);
+                .statusCode(HttpStatus.CREATED.value());
 
         getRole(expectedMembership.getUserId(), expectedMembership.getTeamId())
-                .statusCode(200)
+                .statusCode(HttpStatus.OK.value())
                 .body("name", equalTo(expectedMembership.getRole().getName()));
     }
 
     @Test
     void shouldFailToGetRoleByUserIdAndTeamIdWhenMissingUserId() {
         getRole(null, ORDINARY_CORAL_LYNX_TEAM_UUID)
-                .validate(400, "Bad Request");
+                .validate(HttpStatus.BAD_REQUEST.value(), "Bad Request");
     }
 
     @Test
     void shouldFailToGetRoleByUserIdAndTeamIdWhenMissingTeamId() {
         getRole(GIANNI_USER_UUID, null)
-                .validate(400, "Bad Request");
+                .validate(HttpStatus.BAD_REQUEST.value(), "Bad Request");
     }
 
     @Test
     void shouldFailToGetRoleByUserIdAndTeamIdWhenItDoesNotExist() {
         mockGetTeamById(mockServer, UUID_1, null);
         getRole(GIANNI_USER_UUID, UUID_1)
-                .validate(404, format("Team %s not found", UUID_1));
+                .validate(HttpStatus.BAD_REQUEST.value(), format("Team %s not found", UUID_1));
     }
 }

@@ -14,4 +14,6 @@ public interface MembershipsApi {
     ResponseEntity<List<MembershipDto>> getMemberships(
             UUID roleId);
 
+    ResponseEntity<List<MembershipDto>> getAllMemberships();
+
 }

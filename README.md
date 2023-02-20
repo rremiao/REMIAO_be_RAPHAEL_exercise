@@ -57,3 +57,8 @@ To apply the fixes for code style issues
 ```shell
 mvn spotless:apply
 ```
+
+
+##How to Run
+
+Since I had issues running it in a Docker image, I used mvn spring-boot:run to run my application, other than that I used VSCode tools for debugging and testing.
