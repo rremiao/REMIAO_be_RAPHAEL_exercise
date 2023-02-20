@@ -1,14 +1,12 @@
 package com.ecore.roles.exception;
 
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 @RequiredArgsConstructor
 @Builder
-@Getter
-@Setter
+@Data
 public class ErrorResponse {
 
     private final int status;

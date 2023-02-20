@@ -8,24 +8,25 @@ import com.ecore.roles.model.Role;
 import com.ecore.roles.repository.MembershipRepository;
 import com.ecore.roles.repository.RoleRepository;
 import com.ecore.roles.service.MembershipsService;
+import com.ecore.roles.web.dto.MembershipDto;
+
 import lombok.NonNull;
-import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
-@Log4j2
+import static com.ecore.roles.web.dto.MembershipDto.fromModel;
+
 @Service
 public class MembershipsServiceImpl implements MembershipsService {
 
     private final MembershipRepository membershipRepository;
     private final RoleRepository roleRepository;
 
-    @Autowired
     public MembershipsServiceImpl(
             MembershipRepository membershipRepository,
             RoleRepository roleRepository) {
@@ -34,22 +35,35 @@ public class MembershipsServiceImpl implements MembershipsService {
     }
 
     @Override
-    public Membership assignRoleToMembership(@NonNull Membership m) {
+    public MembershipDto assignRoleToMembership(@NonNull Membership membership) {
 
-        UUID roleId = ofNullable(m.getRole()).map(Role::getId)
+        UUID roleId = ofNullable(membership.getRole()).map(Role::getId)
                 .orElseThrow(() -> new InvalidArgumentException(Role.class));
 
-        if (membershipRepository.findByUserIdAndTeamId(m.getUserId(), m.getTeamId())
+        if (membershipRepository.findByUserIdAndTeamId(membership.getUserId(), membership.getTeamId())
                 .isPresent()) {
             throw new ResourceExistsException(Membership.class);
         }
 
         roleRepository.findById(roleId).orElseThrow(() -> new ResourceNotFoundException(Role.class, roleId));
-        return membershipRepository.save(m);
+        return fromModel(membershipRepository.save(membership));
     }
 
     @Override
-    public List<Membership> getMemberships(@NonNull UUID rid) {
-        return membershipRepository.findByRoleId(rid);
+    public List<MembershipDto> getMemberships(@NonNull UUID roleId) {
+        List<Membership> memberships = membershipRepository.findByRoleId(roleId);
+
+        return memberships
+                .stream()
+                .map(MembershipDto::fromModel)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MembershipDto> getAllMemberships() {
+        return membershipRepository.findAll()
+                .stream()
+                .map(MembershipDto::fromModel)
+                .collect(Collectors.toList());
     }
 }

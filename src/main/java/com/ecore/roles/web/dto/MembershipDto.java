@@ -5,10 +5,9 @@ import com.ecore.roles.model.Role;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -18,8 +17,7 @@ import static java.util.Optional.ofNullable;
 
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 @Builder
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class MembershipDto {
@@ -32,6 +30,12 @@ public class MembershipDto {
     @NotNull
     @EqualsAndHashCode.Include
     private UUID roleId;
+
+    @JsonProperty
+    @Valid
+    @NotNull
+    @EqualsAndHashCode.Include
+    private String roleName;
 
     @JsonProperty(value = "teamMemberId")
     @Valid
@@ -52,6 +56,7 @@ public class MembershipDto {
         return MembershipDto.builder()
                 .id(membership.getId())
                 .roleId(ofNullable(membership.getRole()).map(Role::getId).orElse(null))
+                .roleName(ofNullable(membership.getRole()).map(Role::getName).orElse(null))
                 .userId(membership.getUserId())
                 .teamId(membership.getTeamId())
                 .build();
@@ -60,7 +65,7 @@ public class MembershipDto {
     public Membership toModel() {
         return Membership.builder()
                 .id(this.id)
-                .role(Role.builder().id(this.roleId).build())
+                .role(Role.builder().id(this.roleId).name(this.roleName).build())
                 .userId(this.userId)
                 .teamId(this.teamId)
                 .build();

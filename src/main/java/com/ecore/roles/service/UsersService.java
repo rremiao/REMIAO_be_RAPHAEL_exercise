@@ -1,13 +1,13 @@
 package com.ecore.roles.service;
 
-import com.ecore.roles.client.model.User;
+import com.ecore.roles.web.dto.UserDto;
 
 import java.util.List;
 import java.util.UUID;
 
 public interface UsersService {
 
-    User getUser(UUID id);
+    UserDto getUser(UUID id);
 
-    List<User> getUsers();
+    List<UserDto> getUsers();
 }

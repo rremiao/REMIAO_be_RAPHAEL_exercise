@@ -102,6 +102,7 @@
                 <version>2.30.0</version>
                 <executions>
                     <execution>
+                        <?m2e ignore?>
                         <phase>process-sources</phase>
                         <goals>
                             <goal>check</goal>
